@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * Created by mingleis on 2014/12/25.
  */
-public class AddressLevelRule {
+public class AddressLevelRule implements Rule{
 
 
     private Map<String, String[]> addressLevelDict;
@@ -72,10 +72,12 @@ public class AddressLevelRule {
 
     public float compareWords(String word1, String word2) {
         float score = 0.0f;
-        for (String tempeach : addressLevelDict.get(word1)) {
-            if (word2.equalsIgnoreCase(tempeach)) {
-                score = MATCHSCORE;
-                break;
+        if (addressLevelDict.get(word1) != null) {
+            for (String tempeach : addressLevelDict.get(word1)) {
+                if (word2.equalsIgnoreCase(tempeach)) {
+                    score = MATCHSCORE;
+                    break;
+                }
             }
         }
         return score;

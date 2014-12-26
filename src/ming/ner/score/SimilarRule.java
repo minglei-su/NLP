@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * Created by mingleis on 2014/12/25.
  */
-public class SimilarRule {
+public class SimilarRule implements Rule{
     private Map<String ,String[] > similarDict;
     private String similarDictPath = "./score/similarDict.txt";
     private static String  SPILIT=",";
