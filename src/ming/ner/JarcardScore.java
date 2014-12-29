@@ -1,8 +1,10 @@
 package ming.ner;
 
 import edu.fudan.ml.types.*;
+import edu.fudan.ml.types.Dictionary;
 import edu.fudan.nlp.cn.tag.CWSTagger;
 import edu.fudan.nlp.cn.tag.NERTagger;
+import edu.fudan.nlp.cn.tag.POSTagger;
 import ming.ner.score.AddressLevelRule;
 import ming.ner.score.NgramRule;
 import ming.ner.score.SimilarRule;
@@ -95,7 +97,17 @@ public class JarcardScore {
                 / (weight[0] + weight[1] + weight[2]);
         return score;
     }
-
+    public boolean convertArray2Map(String[][] array, Map<String, String> map1) {
+        for (int i = 0; i < array[0].length; i ++) {
+            if (map1.get(array[1][i]) != null) {
+                map1.put(array[1][i],map1.get(array[1][i]).concat(array[0][i]));
+            } else {
+                map1.put(array[1][i], array[0][i]);
+            }
+        }
+        return true;
+    }
+    //desprated
     public boolean converValue2Key(Map<String, String > map, Map<String, String> map1 ) {
         for (Map.Entry<String, String > entry : map.entrySet()) {
             String key = entry.getValue();
@@ -111,11 +123,11 @@ public class JarcardScore {
     }
     public void ComputeByNER (String s , String s2, Map<String ,String> map, Map<String,String> map2) {
         try {
-            NERTagger nerTagger = new NERTagger("./models/cwsdbmodel.m", "./models/model.m", "./models/cities_alias.properties");
-            Map<String,String> map3 = nerTagger.tag(s);
-            Map<String, String> map4 = nerTagger.tag(s2);
-            this.converValue2Key(map3,map);
-            this.converValue2Key(map4, map2);
+            POSTagger posTagger = new POSTagger("./models/cwsdbmodel.m", "./models/model.m", new Dictionary("./models/cities_alias.properties"));
+            String[][] array0 = posTagger.tag2Array(s);
+            String[][] array1 = posTagger.tag2Array(s2);
+            this.convertArray2Map(array0, map);
+            this.convertArray2Map(array1, map2);
             System.out.println(map);
             System.out.println(map2);
 
