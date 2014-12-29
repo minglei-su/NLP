@@ -22,6 +22,11 @@ public class JarcardScore {
     private static String  SPILIT=",";
     private static String  SPILITKEY = ":";
 
+    private static String FIELD_QH = "行政区划";
+    private static String FIELD_ZH = "字号";
+    private static String FIELD_HY = "行业";
+    private static String FIELD_ZZ = "组织形式";
+
     public JarcardScore() {
         super();
         similarRule = new SimilarRule();
@@ -38,17 +43,32 @@ public class JarcardScore {
     private float compareWord(String word1, String word2) {
         float score = 0;
         boolean isSimilar = false , isAddressLevel = false;
-        if (word1.equalsIgnoreCase(word2)) {
-            score = 1;
-        } else {
-            if ((score = similarRule.compareWords(word1, word2)) == 0.0f) {
-                if ((score = addressLevelRule.compareWords(word1, word2)) == 0.0f ) {
-                    score = ngramRule.compareWords(word1, word2);
+        if (word1 != null && word2 != null) {
+            if (word1.equalsIgnoreCase(word2)) {
+                score = 1;
+            } else {
+                if ((score = similarRule.compareWords(word1, word2)) == 0.0f) {
+                    if ((score = addressLevelRule.compareWords(word1, word2)) == 0.0f) {
+                        score = ngramRule.compareWords(word1, word2);
+                    }
                 }
             }
+        } else {
+            score = 0.0f;
         }
         System.out.println(score);
         return score;
+    }
+
+    public void generateManiData(Map<String, String> map, Map<String, String> map2) {
+        map.put("行政区划", "山东");
+        map.put("字号", "易贸创想");
+        map.put("行业", "软件技术");
+        map.put("组织形式", "有限公司");
+        map2.put("行政区划", "青岛");
+        map2.put("字号", "易贸创想");
+        map2.put("行业", "信息技术");
+        map2.put("组织形式", "集团公司");
     }
     /**
      * 根据各个字段不同权重获得分值,目前使用模拟数据
@@ -61,15 +81,13 @@ public class JarcardScore {
         //模拟NER
         Map<String,String> map = new HashMap<String, String>();
         Map<String, String> map2 = new HashMap<String, String>();
-        map.put("行政区划", "山东");
-        map.put("字号", "易贸创想");
-        map.put("行业", "软件技术");
-        map.put("组织形式", "有限公司");
-        map2.put("行政区划", "青岛");
-        map2.put("字号", "易贸不想");
-        map2.put("行业", "信息技术");
-        map2.put("组织形式", "集团公司");
+//        this.generateManiData(map, map2);
+        this.ComputeByNER(str1, str2, map, map2);
         float[] weight = new float[]{0.5f,1.0f,0.4f,0.0f};
+        if (map.get("字号") == null && map2.get("字号") == null) {
+            weight[1] = 0f;
+            weight[2] = 1.0f;
+        }
         float score = (this.compareWord(map.get("行政区划"), map2.get("行政区划")) * weight[0]
                 + this.compareWord(map.get("字号"), map2.get("字号")) * weight[1]
                 + this.compareWord(map.get("行业"), map2.get("行业")) * weight[2]
@@ -78,38 +96,29 @@ public class JarcardScore {
         return score;
     }
 
-    public void ComputeByNER (String s , String s2) {
+    public boolean converValue2Key(Map<String, String > map, Map<String, String> map1 ) {
+        for (Map.Entry<String, String > entry : map.entrySet()) {
+            String key = entry.getValue();
+            if (map1.get(key) != null) {
+                StringBuilder sb = new StringBuilder(map1.get(key));
+                sb.append(entry.getKey());
+                map1.put(entry.getValue(), sb.toString());
+            } else {
+                map1.put(entry.getValue(), entry.getKey());
+            }
+        }
+        return true;
+    }
+    public void ComputeByNER (String s , String s2, Map<String ,String> map, Map<String,String> map2) {
         try {
             NERTagger nerTagger = new NERTagger("./models/cwsdbmodel.m", "./models/model.m", "./models/cities_alias.properties");
-            Map<String ,String > map = nerTagger.tag(s);
-            Map<String , String > map2 = nerTagger.tag(s2);
-            String srcAddress = null,  srcGroup = new String();
-            String desAddress = null,  desGroup = null;
-            List<String> srcOther = new ArrayList<String>();
-            List<String> desOther = new ArrayList<String>();
+            Map<String,String> map3 = nerTagger.tag(s);
+            Map<String, String> map4 = nerTagger.tag(s2);
+            this.converValue2Key(map3,map);
+            this.converValue2Key(map4, map2);
             System.out.println(map);
             System.out.println(map2);
-            for (String key : map.keySet()) {
-                if (key.equalsIgnoreCase("行政区划")) {
-                    srcAddress = map.get(key);
-                } else if (key.equalsIgnoreCase("组织实行")){
-                    srcGroup = map.get(key);
-                } else {
-                    srcOther.add(map.get(key));
-                }
-            }
-            for (String key : map2.keySet()) {
-                if (key.equalsIgnoreCase("行政区划")) {
-                    desAddress = map.get(key);
-                } else if (key.equalsIgnoreCase("组织实行")){
-                    desGroup = map.get(key);
-                } else {
-                    desOther.add(map.get(key));
-                }
-            }
-            if (srcAddress != null && desAddress != null) {
 
-            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -118,6 +127,6 @@ public class JarcardScore {
 
         JarcardScore score = new JarcardScore();
 
-        System.out.println(score.getSimilarity("", "", 2));
+        System.out.println(score.getSimilarity("山东网易软件技术有限公司", "青岛网易信息技术有限公司", 2));
     }
 }

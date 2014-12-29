@@ -25,7 +25,8 @@ public class NER {
 		try {
 
             NERTagger nerTagger = new NERTagger("./models/cwsdbmodel.m", "./models/model.m", "./models/cities_alias.properties");
-
+            String s = "山东网易信息技术有限公司";
+            System.out.println(nerTagger.tag(s));
 //			String s = "中国石油天然气股份有限公司（简称“中国石油”）是中国油气行业占主导地位的最大的油气生产和销售商，是中国销售收入最多的公司之一，也是世界最大的石油公司之一。截至2013年初，总资产达3478亿美元."+
 //			"中国人民银行是中华人民共和国的中央银行，中华人民共和国国务院     组成部门之一。"+
 //			"1995年搜狐创始人张朝阳从美国麻省理工学院毕业回到中国，利用风险投资创建了爱特信信息技术有限公司，1998年正式推出搜狐网。";
@@ -42,7 +43,7 @@ public class NER {
 			System.out.println(map);
 			map =  tag.tag(s3);
 			System.out.println(map);
-*/
+*//*
             BufferedReader input = new BufferedReader(new FileReader("./models/cwsdbsource.txt"));
             Map<String, String> s = new HashMap<String, String>();
             String s2 = new String();
@@ -60,7 +61,7 @@ public class NER {
             input.close();
             w.close();
             long over = System.currentTimeMillis();
-            System.out.println("time :" + String.valueOf(over-start));
+            System.out.println("time :" + String.valueOf(over-start));*/
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

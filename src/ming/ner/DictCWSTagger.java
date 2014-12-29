@@ -42,7 +42,8 @@ public class DictCWSTagger {
 */
 		CWSTagger tag2 = new CWSTagger("./models/cwsdbmodel.m", new Dictionary("./models/cities_alias.properties"));
 		System.out.println("\n使用词典的分词：");
-        BufferedReader input = new BufferedReader(new FileReader("./models/dbwrong.txt"));
+        System.out.println(tag2.tag("山东网易信息技术有限公司"));
+/*        BufferedReader input = new BufferedReader(new FileReader("./models/dbwrong.txt"));
         String s = new String();
         String s2 = new String();
         String src = new String();
